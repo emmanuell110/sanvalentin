@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>💝 Pregunta importante</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="page page-question">
+  <!-- corazones -->
+  <div id="hearts" class="hearts-layer" aria-hidden="true"></div>
+
+  <main class="center">
+    <section class="question-box">
+      <h1 class="question-title">¿Quieres ser mi San Valentín? 💖</h1>
+      <p class="question-sub">
+        Prometo muchas risas, abrazos, y un montón de amor.
+      </p>
+
+      <div class="actions">
+        <button id="yesBtn" class="btn btn-primary">Sí 💘</button>
+
+        <!-- “No” desactivado + no clickeable -->
+        <button id="noBtn" class="btn btn-ghost" disabled aria-disabled="true" title="No disponible 😌">
+          No 🙃
+        </button>
+      </div>
+
+      <p class="tiny-note">*Solo hay una respuesta correcta 😏</p>
+    </section>
+  </main>
+
+  <!-- modal/aviso -->
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <h2 id="modalTitle">¡Siiii! 💞</h2>
+      <p id="modalText">
+        Sabía que dirías que sí 😍<br />
+        Te amo muchísimo. Feliz San Valentín ❤️
+      </p>
+      <button id="closeModal" class="btn btn-primary btn-wide">Cerrar</button>
+    </div>
+  </div>
+
+  <script src="js/hearts.js"></script>
+  <script>
+    const yesBtn = document.getElementById("yesBtn");
+    const modal = document.getElementById("modal");
+    const closeModal = document.getElementById("closeModal");
+
+    yesBtn.addEventListener("click", () => {
+      modal.classList.remove("hidden");
+    });
+
+    closeModal.addEventListener("click", () => {
+      modal.classList.add("hidden");
+    });
+
+    // opcional: cerrar tocando fondo oscuro
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) modal.classList.add("hidden");
+    });
+  </script>
+</body>
+</html>
