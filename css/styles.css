@@ -147,12 +147,25 @@ body{
   border-radius: 18px;
   overflow:hidden;
   border: 1px solid rgba(255,255,255,0.14);
-  background: var(--card);
+  background: rgba(0,0,0,0.25); /* fondo para cuando use contain */
   box-shadow: var(--shadow);
-  transform: translateY(10px);
-  opacity: 0;
-  animation: popIn .7s ease forwards;
 }
+
+
+.card img{
+  width: 100%;
+  aspect-ratio: 1 / 1;     /* todas cuadradas */
+  object-fit: contain;     /* NO recorta, muestra completa */
+  background: rgba(0,0,0,0.35);
+  display:block;
+  padding: 8px;            /* “marquito” */
+}
+
+/* en pantallas chiquitas que no se vean enormes */
+@media (max-width: 420px){
+  .card img{ padding: 6px; }
+}
+
 .card:nth-child(2){ animation-delay: .08s; }
 .card:nth-child(3){ animation-delay: .16s; }
 .card:nth-child(4){ animation-delay: .24s; }
@@ -161,15 +174,6 @@ body{
   to { transform: translateY(0); opacity:1; }
 }
 
-.card img{
-  width:100%;
-  height: 220px;
-  object-fit: cover;
-  display:block;
-}
-@media (max-width: 420px){
-  .card img{ height: 170px; }
-}
 
 .love-text{
   margin: 18px auto 10px;
@@ -268,3 +272,55 @@ body{
   position:relative;
   z-index: 5;
 }
+/* --- Avión de papel --- */
+.intro-wrap{
+  position: relative; /* para que el avión se posicione dentro */
+  overflow: hidden;
+}
+
+.paper-plane{
+  position: absolute;
+  left: -80px;
+  top: 40%;
+  font-size: 34px;
+  transform: translateY(-50%);
+  opacity: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 12px 25px rgba(0,0,0,0.45));
+}
+
+.paper-plane.fly{
+  opacity: 1;
+  animation: flyPlane 1.6s ease-in-out forwards;
+}
+
+@keyframes flyPlane{
+  0%   { transform: translate(-10px, -30px) rotate(10deg); }
+  70%  { transform: translate(520px, -10px) rotate(-8deg); }
+  100% { transform: translate(560px, 0px) rotate(18deg); }
+}
+
+/* --- choque en la primera letra --- */
+.hit-letter{
+  display: inline-block;
+  transform-origin: center;
+}
+
+.hit-letter.hit{
+  animation: hitShake 0.35s ease;
+}
+
+@keyframes hitShake{
+  0%   { transform: translateX(0) rotate(0); }
+  30%  { transform: translateX(-3px) rotate(-8deg); }
+  60%  { transform: translateX(3px) rotate(8deg); }
+  100% { transform: translateX(0) rotate(0); }
+}
+/* --- Fuegos artificiales --- */
+#fireworks{
+  position: fixed;
+  inset: 0;
+  z-index: 60; /* encima de todo */
+  pointer-events: none;
+}
+

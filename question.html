@@ -6,6 +6,7 @@
   <title>💝 Pregunta importante</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
+
 <body class="page page-question">
   <!-- corazones -->
   <div id="hearts" class="hearts-layer" aria-hidden="true"></div>
@@ -20,8 +21,7 @@
       <div class="actions">
         <button id="yesBtn" class="btn btn-primary">Sí 💘</button>
 
-        <!-- “No” desactivado + no clickeable -->
-        <button id="noBtn" class="btn btn-ghost" disabled aria-disabled="true" title="No disponible 😌">
+        <button id="noBtn" class="btn btn-ghost">
           No 🙃
         </button>
       </div>
@@ -30,7 +30,7 @@
     </section>
   </main>
 
-  <!-- modal/aviso -->
+  <!-- modal/aviso del SÍ -->
   <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-card">
       <h2 id="modalTitle">¡Siiii! 💞</h2>
@@ -42,23 +42,168 @@
     </div>
   </div>
 
+  <!-- modal de advertencias para "No" -->
+  <div id="warnModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="warnTitle">
+    <div class="modal-card">
+      <h2 id="warnTitle">Ey 😳</h2>
+      <p id="warnText">¿Cómo que no?</p>
+      <button id="closeWarn" class="btn btn-primary btn-wide">Ok</button>
+    </div>
+  </div>
+
+  <!-- fuegos artificiales -->
+  <canvas id="fireworks"></canvas>
+
   <script src="js/hearts.js"></script>
   <script>
+    // ---------- MODAL SÍ ----------
     const yesBtn = document.getElementById("yesBtn");
     const modal = document.getElementById("modal");
     const closeModal = document.getElementById("closeModal");
-
-    yesBtn.addEventListener("click", () => {
-      modal.classList.remove("hidden");
-    });
 
     closeModal.addEventListener("click", () => {
       modal.classList.add("hidden");
     });
 
-    // opcional: cerrar tocando fondo oscuro
     modal.addEventListener("click", (e) => {
       if (e.target === modal) modal.classList.add("hidden");
+    });
+
+    // ---------- MODAL NO ----------
+    const noBtn = document.getElementById("noBtn");
+    const warnModal = document.getElementById("warnModal");
+    const closeWarn = document.getElementById("closeWarn");
+    const warnTitle = document.getElementById("warnTitle");
+    const warnText = document.getElementById("warnText");
+
+    let noClicks = 0;
+
+    const warnings = [
+      { title: "¿Cómo que no? 😳", text: "Dale, te doy otra oportunidad..." },
+      { title: "Ey 😠", text: "¿Cómo que no otra vez? Dale una chance más... 😤" },
+      { title: "¿Segura? 🥺", text: "Porque yo sí te elijo a ti… 🥺❤️" },
+      { title: "Ya van 4 😤", text: "Te estás acercando al último intento…" },
+      { title: "⚠️ ÚLTIMO INTENTO", text: "Ok… este es el último. Eres terca ya me di cuenta, solo pon que sí órale 😈" }
+    ];
+
+    function openWarnModal(title, text) {
+      warnTitle.textContent = title;
+      warnText.textContent = text;
+      warnModal.classList.remove("hidden");
+    }
+
+    function closeWarnModal() {
+      warnModal.classList.add("hidden");
+    }
+
+    closeWarn.addEventListener("click", closeWarnModal);
+    warnModal.addEventListener("click", (e) => {
+      if (e.target === warnModal) closeWarnModal();
+    });
+
+    noBtn.addEventListener("click", () => {
+      noClicks++;
+
+      const idx = Math.min(noClicks - 1, warnings.length - 1);
+      openWarnModal(warnings[idx].title, warnings[idx].text);
+
+      // En el 5to click se desactiva
+      if (noClicks >= 5) {
+        noBtn.disabled = true;
+        noBtn.setAttribute("aria-disabled", "true");
+        noBtn.title = "Se acabaron los intentos 😌";
+      }
+    });
+
+    // ---------- FUEGOS ARTIFICIALES ----------
+    const canvas = document.getElementById("fireworks");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+    let animating = false;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    function random(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function createFirework() {
+      const x = random(canvas.width * 0.15, canvas.width * 0.85);
+      const y = canvas.height + 10;
+      const count = 90;
+
+      const colors = ["#ff2d55", "#ff6a88", "#ff99aa", "#ffffff", "#b22222"];
+
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 / count) * i;
+        const speed = random(2.5, 7);
+
+        particles.push({
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - random(4, 8),
+          alpha: 1,
+          radius: random(1.4, 3.2),
+          color: colors[Math.floor(Math.random() * colors.length)]
+        });
+      }
+    }
+
+    function animateFireworks() {
+      if (!animating) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.06;     // gravedad
+        p.alpha -= 0.014; // fade
+
+        if (p.alpha <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+
+        ctx.globalAlpha = p.alpha;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+      }
+
+      ctx.globalAlpha = 1;
+
+      if (particles.length > 0) {
+        requestAnimationFrame(animateFireworks);
+      } else {
+        animating = false;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    function launchFireworks() {
+      animating = true;
+      particles = [];
+      createFirework();
+      setTimeout(createFirework, 260);
+      setTimeout(createFirework, 520);
+      setTimeout(createFirework, 780);
+      animateFireworks();
+    }
+
+    // ---------- CLICK SÍ: fuegos + modal ----------
+    yesBtn.addEventListener("click", () => {
+      launchFireworks();               // 🎆 BOOM desde abajo
+      modal.classList.remove("hidden"); // abre modal
     });
   </script>
 </body>
